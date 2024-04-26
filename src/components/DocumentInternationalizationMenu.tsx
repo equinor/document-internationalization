@@ -11,7 +11,7 @@ import {
 } from '@sanity/ui'
 import {uuid} from '@sanity/uuid'
 import {type FormEvent, useCallback, useMemo, useState} from 'react'
-import {useEditState} from 'sanity'
+import {Role, useCurrentUser, useEditState} from 'sanity'
 
 import {useTranslationMetadata} from '../hooks/useLanguageMetadata'
 import type {DocumentInternationalizationMenuProps} from '../types'
@@ -28,6 +28,9 @@ export function DocumentInternationalizationMenu(
   const schemaType = props.schemaType
   const {languageField, supportedLanguages} =
     useDocumentInternationalizationContext()
+
+  // Get current user
+  const currentUser = useCurrentUser()
 
   // Search filter query
   const [query, setQuery] = useState(``)
@@ -95,7 +98,9 @@ export function DocumentInternationalizationMenu(
         </Card>
       ) : (
         <Stack space={1}>
-          <LanguageManage id={metadata?._id} />
+          {currentUser?.roles.find((role: Role) =>
+            ['administrator', 'developer'].includes(role.name)
+          ) && <LanguageManage id={metadata?._id} />}
           {supportedLanguages.length > 4 ? (
             <TextInput
               onChange={handleQuery}
